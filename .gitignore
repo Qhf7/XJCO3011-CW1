@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+# Ignore the large production DB but allow the small demo DB for deployment
+nutrition.db
+nutrition.db-shm
+nutrition.db-wal
+*.sqlite3
+.DS_Store
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# Raw dataset files — too large for GitHub (751 MB total).
+# See Data/README.md for download instructions.
+Data/*.csv
+Data/*.json
+Data/FoodData_Central_sr_legacy_food_csv_2018-04/*.csv
+Data/FoodData_Central_foundation_food_csv_2025-12-18/*.csv
+Data/FoodData_Central_foundation_food_csv_2025-12-18/*.json
