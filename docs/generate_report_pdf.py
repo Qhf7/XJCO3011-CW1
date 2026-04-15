@@ -114,7 +114,7 @@ def build_story():
         ("Institution",  "University of Leeds / SWJTU"),
         ("Deadline",     "21 April 2026"),
         ("GitHub",       "https://github.com/Qhf7/XJCO3011-CW1"),
-        ("Live API",     "Local: uvicorn app.main:app --port 8000  |  MCP: python -m app.mcp_server"),
+        ("Live API",     "https://web-production-e0934.up.railway.app"),
         ("API Docs",     "/docs  (Swagger UI)  |  /redoc  (ReDoc)"),
     ]))
     S.append(sp(4))
