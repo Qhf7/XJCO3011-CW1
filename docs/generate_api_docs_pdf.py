@@ -319,6 +319,158 @@ def build_story(spec: dict) -> list:
         col_ws=[52*mm, 123*mm]
     ))
 
+    # ── JSON Examples ─────────────────────────────────────────────────────────
+    S += [sp(3), Paragraph("Example Requests &amp; Responses", H1), sp(1)]
+    S.append(Paragraph(
+        "The following examples show real request bodies and abbreviated JSON responses "
+        "for the most commonly used endpoints. All responses use Content-Type: application/json.",
+        BODY
+    ))
+
+    examples = [
+        # (title, request_label, request_json, response_label, response_json)
+        (
+            "POST /auth/register — Register a new user",
+            "Request body (application/json):",
+            '{\n  "username": "alice",\n  "email": "alice@example.com",\n  "password": "secret123"\n}',
+            "Response 201 Created:",
+            '{\n  "id": 1,\n  "username": "alice",\n  "email": "alice@example.com"\n}',
+        ),
+        (
+            "POST /auth/login — Obtain JWT token",
+            "Request body (application/x-www-form-urlencoded):",
+            "username=alice&password=secret123",
+            "Response 200 OK:",
+            '{\n  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",\n  "token_type": "bearer"\n}',
+        ),
+        (
+            "GET /ingredients?q=chicken — Search ingredients",
+            "Request: GET /ingredients?q=chicken&page=1&page_size=3",
+            "(no request body)",
+            "Response 200 OK:",
+            '{\n  "total": 42,\n  "page": 1,\n  "page_size": 3,\n  "items": [\n'
+            '    {"id": 101, "fdc_id": 171477, "description": "Chicken, broilers or fryers, breast, meat only, raw",\n'
+            '     "category": "Poultry Products", "data_source": "USDA"},\n'
+            '    {"id": 102, "fdc_id": 171478, "description": "Chicken, broilers, drumstick, meat only, raw",\n'
+            '     "category": "Poultry Products", "data_source": "USDA"}\n'
+            '  ]\n}',
+        ),
+        (
+            "GET /ingredients/{id}/nutrition — Nutrition per 100g",
+            "Request: GET /ingredients/101/nutrition",
+            "(no request body)",
+            "Response 200 OK:",
+            '{\n  "ingredient_id": 101,\n  "description": "Chicken breast, raw",\n'
+            '  "energy_kcal": 120.0,\n  "protein_g": 22.5,\n  "fat_g": 2.6,\n'
+            '  "carbohydrate_g": 0.0,\n  "fiber_g": 0.0,\n  "nutrients": [\n'
+            '    {"name": "Calcium, Ca", "amount": 11.0, "unit": "mg"},\n'
+            '    {"name": "Iron, Fe",    "amount": 0.7,  "unit": "mg"}\n'
+            '  ]\n}',
+        ),
+        (
+            "GET /ingredients/{id}/nutrient-density — NDS score",
+            "Request: GET /ingredients/101/nutrient-density",
+            "(no request body)",
+            "Response 200 OK:",
+            '{\n  "ingredient_id": 101,\n  "description": "Chicken breast, raw",\n'
+            '  "nds_score": 61.4,\n  "grade": "B",\n'
+            '  "breakdown": {\n    "protein_score": 100.0,\n    "fiber_score": 0.0,\n'
+            '    "vitamin_c_score": 0.0,\n    "calcium_score": 9.2,\n    "iron_score": 97.2\n  }\n}',
+        ),
+        (
+            "POST /ingredients — Create custom ingredient (auth required)",
+            "Request body (application/json)  +  Authorization: Bearer <token>:",
+            '{\n  "description": "My Homemade Granola",\n  "nutrition": {\n'
+            '    "energy_kcal": 450,\n    "protein_g": 10.0,\n    "fat_g": 18.0,\n'
+            '    "carbohydrate_g": 60.0,\n    "fiber_g": 5.0\n  }\n}',
+            "Response 201 Created:",
+            '{\n  "id": 8001,\n  "fdc_id": 9000001,\n  "description": "My Homemade Granola",\n'
+            '  "category_id": null,\n  "data_source": "user_created"\n}',
+        ),
+        (
+            "GET /recipes/{id}/allergens — Allergen warnings",
+            "Request: GET /recipes/42/allergens",
+            "(no request body)",
+            "Response 200 OK:",
+            '{\n  "recipe_id": 42,\n  "recipe_name": "Classic Mac and Cheese",\n'
+            '  "allergens_detected": [\n'
+            '    {"allergen": "dairy",  "ingredients": ["cheddar cheese", "butter", "milk"]},\n'
+            '    {"allergen": "gluten", "ingredients": ["elbow macaroni"]}\n'
+            '  ],\n  "safe_for": ["peanut-free", "egg-free", "soy-free"],\n'
+            '  "allergen_free": false\n}',
+        ),
+        (
+            "GET /recipes/{id}/difficulty — Difficulty score",
+            "Request: GET /recipes/42/difficulty",
+            "(no request body)",
+            "Response 200 OK:",
+            '{\n  "recipe_id": 42,\n  "recipe_name": "Classic Mac and Cheese",\n'
+            '  "difficulty_score": 2,\n  "difficulty_label": "Easy",\n'
+            '  "factors": {\n    "steps_score": 1,\n    "ingredients_score": 1,\n'
+            '    "time_score": 0,\n    "technique_score": 0,\n    "beginner_modifier": 0\n  }\n}',
+        ),
+        (
+            "POST /analytics/nutrition/calculate — Custom nutrition",
+            "Request body (application/json):",
+            '{\n  "items": [\n    {"ingredient_id": 101, "amount_g": 200},\n'
+            '    {"ingredient_id": 55,  "amount_g": 150}\n  ],\n  "servings": 2\n}',
+            "Response 200 OK:",
+            '{\n  "servings": 2,\n  "total": {"energy_kcal": 380.0, "protein_g": 53.0, "fat_g": 9.2},\n'
+            '  "per_serving": {"energy_kcal": 190.0, "protein_g": 26.5, "fat_g": 4.6},\n'
+            '  "ingredients": [\n    {"description": "Chicken breast, raw", "amount_g": 200},\n'
+            '    {"description": "Broccoli, raw",     "amount_g": 150}\n  ]\n}',
+        ),
+        (
+            "POST /analytics/meal-plan/analyze — Full day meal plan",
+            "Request body (application/json):",
+            '{\n  "entries": [\n    {"recipe_id": 42, "servings": 1},\n'
+            '    {"recipe_id": 17, "servings": 2}\n  ]\n}',
+            "Response 200 OK:",
+            '{\n  "total_nutrition": {"energy_kcal": 1250.0, "protein_g": 68.0, "fat_g": 42.0},\n'
+            '  "dri_percentages": {"energy": 62.5, "protein": 147.8, "fat": 64.6},\n'
+            '  "allergens": ["dairy", "gluten"],\n'
+            '  "recipes": [\n    {"recipe_id": 42, "name": "Classic Mac and Cheese"},\n'
+            '    {"recipe_id": 17, "name": "Grilled Chicken Salad"}\n  ]\n}',
+        ),
+    ]
+
+    CODE_BG = colors.HexColor("#f6f8fa")
+    REQ_COL = colors.HexColor("#0d47a1")
+    RES_COL = colors.HexColor("#1b5e20")
+
+    for title, req_label, req_body, res_label, res_body in examples:
+        S.append(Paragraph(f"<b>{title}</b>", H2))
+
+        # Request
+        S.append(Paragraph(f'<font color="#0d47a1">{req_label}</font>', SMALL))
+        req_lines = req_body.split("\n")
+        req_data  = [[Paragraph(line.replace(" ", "&nbsp;"), CODE)] for line in req_lines]
+        req_tbl   = Table(req_data, colWidths=[175*mm])
+        req_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0,0), (-1,-1), CODE_BG),
+            ("BOX",           (0,0), (-1,-1), 0.5, colors.HexColor("#cccccc")),
+            ("TOPPADDING",    (0,0), (-1,-1), 1),
+            ("BOTTOMPADDING", (0,0), (-1,-1), 1),
+            ("LEFTPADDING",   (0,0), (-1,-1), 6),
+        ]))
+        S.append(req_tbl)
+        S.append(sp(1))
+
+        # Response
+        S.append(Paragraph(f'<font color="#1b5e20">{res_label}</font>', SMALL))
+        res_lines = res_body.split("\n")
+        res_data  = [[Paragraph(line.replace(" ", "&nbsp;"), CODE)] for line in res_lines]
+        res_tbl   = Table(res_data, colWidths=[175*mm])
+        res_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0,0), (-1,-1), colors.HexColor("#f0fff4")),
+            ("BOX",           (0,0), (-1,-1), 0.5, colors.HexColor("#a5d6a7")),
+            ("TOPPADDING",    (0,0), (-1,-1), 1),
+            ("BOTTOMPADDING", (0,0), (-1,-1), 1),
+            ("LEFTPADDING",   (0,0), (-1,-1), 6),
+        ]))
+        S.append(res_tbl)
+        S.append(sp(2))
+
     return S
 
 

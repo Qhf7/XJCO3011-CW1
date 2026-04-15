@@ -113,8 +113,8 @@ def build_story():
         ("Module",       "XJCO3011 Web Services and Web Data"),
         ("Institution",  "University of Leeds / SWJTU"),
         ("Deadline",     "21 April 2026"),
-        ("GitHub",       "https://github.com/&lt;your-username&gt;/nutrition-recipe-api"),
-        ("Live API",     "https://nutrition-recipe-api.onrender.com"),
+        ("GitHub",       "https://github.com/Qhf7/XJCO3011-CW1"),
+        ("Live API",     "Local: uvicorn app.main:app --port 8000  |  MCP: python -m app.mcp_server"),
         ("API Docs",     "/docs  (Swagger UI)  |  /redoc  (ReDoc)"),
     ]))
     S.append(sp(4))
@@ -260,8 +260,8 @@ def build_story():
              "Pinned bcrypt==4.0.1 in requirements.txt, retaining the __about__ attribute passlib depends on."],
             ["pytest in-memory DB: tables invisible across sessions",
              "Used SQLAlchemy StaticPool so all test sessions share one connection and the same schema."],
-            ["fastmcp installed starlette 1.0.0, breaking FastAPI 0.115",
-             "Pinned starlette==0.52.1 in requirements.txt to restore compatibility."],
+            ["fastmcp 2.x installed starlette 1.0.0, breaking FastAPI routing",
+             "Upgraded to fastmcp&gt;=3.0.0 and fastapi&gt;=0.116.0, which share compatible starlette versions."],
         ],
         col_ws=[60*mm, 115*mm]
     ))
