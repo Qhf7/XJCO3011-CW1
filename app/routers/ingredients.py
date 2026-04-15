@@ -127,10 +127,13 @@ def create_ingredient(
     ).order_by(Ingredient.fdc_id.desc()).first()
     new_fdc = (max_fdc.fdc_id + 1) if max_fdc else _USER_FDC_BASE
 
+    # treat category_id=0 as null (Swagger UI defaults integers to 0)
+    category_id = payload.category_id if payload.category_id else None
+
     ing = Ingredient(
         fdc_id=new_fdc,
         description=payload.description,
-        category_id=payload.category_id,
+        category_id=category_id,
         data_source="user_created",
     )
     db.add(ing)
@@ -162,7 +165,8 @@ def update_ingredient(
     if payload.description is not None:
         ing.description = payload.description
     if payload.category_id is not None:
-        ing.category_id = payload.category_id
+        # treat 0 as null
+        ing.category_id = payload.category_id if payload.category_id else None
 
     if payload.nutrition is not None:
         if ing.nutrition:
