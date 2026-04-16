@@ -266,7 +266,25 @@ def build_story():
         col_ws=[60*mm, 115*mm]
     ))
 
-    S += [h2("5.2  Limitations &amp; Future Work")]
+    S += [h2("5.2  Lessons Learned")]
+    S += bullets([
+        "<b>Dependency management is critical in FastAPI ecosystems</b>: The starlette/fastmcp "
+        "version conflict taught me to always pin transitive dependencies and verify compatibility "
+        "before integrating new libraries. Using requirements.txt with explicit version constraints "
+        "prevents 'works on my machine' failures.",
+        "<b>Test isolation must be explicit</b>: SQLite in-memory databases share state differently "
+        "from on-disk databases. The StaticPool lesson reinforced that test infrastructure decisions "
+        "need to be validated early -- silent failures (tables not found) are harder to debug than "
+        "explicit errors.",
+        "<b>Database size is an architectural constraint</b>: The 456 MB production database "
+        "exceeded GitHub's 100 MB file limit, which was not anticipated at design time. Building "
+        "the demo database generator early would have saved rework.",
+        "<b>GenAI accelerates but does not replace validation</b>: AI-generated code required "
+        "careful review -- the bcrypt compatibility issue and the VACUUM-in-transaction bug were "
+        "only caught through testing, not AI suggestion.",
+    ])
+
+    S += [h2("5.3  Limitations &amp; Future Work")]
     S += bullets([
         "<b>Ingredient matching</b>: Recipe-ingredient linking is text-based. Future work would "
         "use embedding-based fuzzy matching to link Food.com ingredient strings to USDA fdc_ids.",
@@ -319,6 +337,37 @@ def build_story():
         "and solution exploration'</b> tier (80-89 band, marking rubric). AI was used as a "
         "thought partner to explore design alternatives -- NDS grading, MCP integration "
         "pattern, cache-first OFF strategy -- not merely to generate boilerplate code."
+    ))
+
+    # ── 7. References ────────────────────────────────────────────────────────
+    S += [h1("7.  References"), sp(1)]
+    S.append(grid_table(
+        ["Dataset / Library", "Citation"],
+        [
+            ["USDA FoodData Central SR Legacy",
+             "U.S. Department of Agriculture, Agricultural Research Service. FoodData Central "
+             "SR Legacy, 2018. https://fdc.nal.usda.gov/. Public Domain."],
+            ["Food.com Recipes and Interactions",
+             "Shuyang Li. Food.com Recipes and Interactions. Kaggle, 2019. "
+             "https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions. "
+             "CC BY-SA 3.0."],
+            ["Open Food Facts",
+             "Open Food Facts contributors. Open Food Facts database. "
+             "https://world.openfoodfacts.org. Open Database Licence (ODbL)."],
+            ["FastAPI",
+             "Ramirez, S. FastAPI framework, high performance, easy to learn, fast to code. "
+             "https://fastapi.tiangolo.com. MIT Licence."],
+            ["SQLAlchemy",
+             "Bayer, M. SQLAlchemy -- The Database Toolkit for Python. "
+             "https://www.sqlalchemy.org. MIT Licence."],
+            ["FastMCP",
+             "FastMCP: Model Context Protocol server framework for Python. "
+             "https://github.com/jlowin/fastmcp. Apache 2.0."],
+            ["pydantic-settings",
+             "Pydantic Settings -- environment variable management. "
+             "https://docs.pydantic.dev/latest/concepts/pydantic_settings/. MIT Licence."],
+        ],
+        col_ws=[48*mm, 127*mm]
     ))
 
     return S

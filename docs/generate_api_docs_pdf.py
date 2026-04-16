@@ -147,9 +147,18 @@ def make_doc(path):
     return doc
 
 
-def fetch_spec(url="http://localhost:8000/openapi.json") -> dict:
-    with urllib.request.urlopen(url) as resp:
-        return json.loads(resp.read())
+LIVE_URL = "https://web-production-e0934.up.railway.app"
+
+
+def fetch_spec(url=f"{LIVE_URL}/openapi.json") -> dict:
+    import ssl
+    ctx = ssl._create_unverified_context()
+    try:
+        with urllib.request.urlopen(url, context=ctx) as resp:
+            return json.loads(resp.read())
+    except Exception:
+        with urllib.request.urlopen(url) as resp:
+            return json.loads(resp.read())
 
 
 def build_story(spec: dict) -> list:
@@ -171,7 +180,7 @@ def build_story(spec: dict) -> list:
 
     # Base info table
     servers = spec.get("servers", [])
-    base_url = servers[0]["url"] if servers else "http://localhost:8000"
+    base_url = servers[0]["url"] if servers else LIVE_URL
     S.append(grid(
         ["Property", "Value"],
         [
@@ -475,7 +484,7 @@ def build_story(spec: dict) -> list:
 
 
 def main():
-    print("Fetching OpenAPI spec from http://localhost:8000/openapi.json ...")
+    print("Fetching OpenAPI spec from https://web-production-e0934.up.railway.app/openapi.json ...")
     try:
         spec = fetch_spec()
     except Exception as e:
