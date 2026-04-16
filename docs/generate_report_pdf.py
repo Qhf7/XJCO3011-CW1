@@ -116,6 +116,8 @@ def build_story():
         ("GitHub",       "https://github.com/Qhf7/XJCO3011-CW1"),
         ("Live API",     "https://web-production-e0934.up.railway.app"),
         ("API Docs",     "/docs  (Swagger UI)  |  /redoc  (ReDoc)"),
+        ("Slides",       "docs/presentation.pptx  (in GitHub repository)"),
+        ("GenAI Appendix", "docs/genai_appendix.pdf  (in GitHub repository)"),
     ]))
     S.append(sp(4))
 

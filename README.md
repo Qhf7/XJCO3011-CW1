@@ -234,6 +234,12 @@ A static PDF export of the API documentation is available in [`docs/api_document
 
 The technical report (design decisions, stack justification, testing approach, limitations, and GenAI declaration) is available in [`docs/technical_report.pdf`](docs/technical_report.pdf).
 
+### Presentation Slides
+
+Oral examination slides (15 slides, 5-minute presentation) are available in [`docs/presentation.pptx`](docs/presentation.pptx).
+
+Covers: project overview · technology stack · architecture · data sources · innovation features · endpoints · MCP integration · version control · testing · deployment · API docs · GenAI usage · all deliverables · live demo guide.
+
 ### Appendix A — GenAI Conversation Log
 
 Selected excerpts from the AI-assisted development session (Cursor IDE / Claude) are available in [`docs/genai_appendix.pdf`](docs/genai_appendix.pdf). Full session ID: `38778eed-e850-434d-b8f6-e013ee468440`.
