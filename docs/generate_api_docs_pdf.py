@@ -447,13 +447,18 @@ def build_story(spec: dict) -> list:
     REQ_COL = colors.HexColor("#0d47a1")
     RES_COL = colors.HexColor("#1b5e20")
 
+    def safe_para(line, style):
+        """Escape & and < so ReportLab XML parser doesn't choke, then nbsp spaces."""
+        escaped = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        return Paragraph(escaped.replace(" ", "&nbsp;"), style)
+
     for title, req_label, req_body, res_label, res_body in examples:
         S.append(Paragraph(f"<b>{title}</b>", H2))
 
         # Request
         S.append(Paragraph(f'<font color="#0d47a1">{req_label}</font>', SMALL))
         req_lines = req_body.split("\n")
-        req_data  = [[Paragraph(line.replace(" ", "&nbsp;"), CODE)] for line in req_lines]
+        req_data  = [[safe_para(line, CODE)] for line in req_lines]
         req_tbl   = Table(req_data, colWidths=[175*mm])
         req_tbl.setStyle(TableStyle([
             ("BACKGROUND",    (0,0), (-1,-1), CODE_BG),
@@ -468,7 +473,7 @@ def build_story(spec: dict) -> list:
         # Response
         S.append(Paragraph(f'<font color="#1b5e20">{res_label}</font>', SMALL))
         res_lines = res_body.split("\n")
-        res_data  = [[Paragraph(line.replace(" ", "&nbsp;"), CODE)] for line in res_lines]
+        res_data  = [[safe_para(line, CODE)] for line in res_lines]
         res_tbl   = Table(res_data, colWidths=[175*mm])
         res_tbl.setStyle(TableStyle([
             ("BACKGROUND",    (0,0), (-1,-1), colors.HexColor("#f0fff4")),
