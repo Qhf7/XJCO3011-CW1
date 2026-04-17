@@ -179,10 +179,10 @@ def build_story(msgs):
     intro_rows = [
         ["Student",      "Qiaohongfei"],
         ["Module",       "XJCO3011 Web Services and Web Data"],
-        ["AI Tool",      "Cursor IDE — Claude claude-4.6-sonnet (Sonnet 4.5)"],
-        ["Session ID",   "38778eed-e850-434d-b8f6-e013ee468440"],
-        ["Total turns",  str(len(msgs))],
-        ["Declaration",  "GREEN Light Assessment — AI declared per module policy"],
+        ["AI Tools",     "Cursor IDE (Claude claude-4.6-sonnet) + Google Gemini 3.1 Pro"],
+        ["Session ID",   "38778eed-e850-434d-b8f6-e013ee468440 (Cursor) + Gemini web chat"],
+        ["Total turns",  str(len(msgs)) + " (Cursor) + 14 (Gemini)"],
+        ["Declaration",  "GREEN Light Assessment — all AI tools declared per module policy"],
     ]
     intro_data = [[Paragraph(r[0], THDR), Paragraph(r[1], TCELL)] for r in intro_rows]
     intro_tbl  = Table(intro_data, colWidths=[42*mm, 131*mm])
@@ -198,11 +198,13 @@ def build_story(msgs):
     S.append(sp(3))
 
     S.append(Paragraph(
-        "This appendix contains selected excerpts from the AI-assisted development session "
-        "for the Nutrition &amp; Recipe Analytics API. Excerpts are grouped by development "
+        "This appendix contains selected excerpts from two AI-assisted development sessions "
+        "for the Nutrition &amp; Recipe Analytics API: (1) Cursor IDE with Claude "
+        "claude-4.6-sonnet, used for implementation, debugging, and documentation; and "
+        "(2) Google Gemini 3.1 Pro, used for dataset discovery, architecture design, "
+        "algorithm co-design, and deployment strategy. Excerpts are grouped by development "
         "stage to demonstrate how Generative AI was used as a creative and technical "
-        "collaborator throughout the project lifecycle, corresponding to the 80–89 "
-        "(Excellent) GenAI usage band in the marking rubric.",
+        "collaborator, corresponding to the 80–89 (Excellent) GenAI usage band.",
         BODY
     ))
     S.append(sp(2))
@@ -242,100 +244,106 @@ def build_story(msgs):
     ))
     S.append(sp(2))
 
-    if msgs:
-        # Split into user/assistant pairs
-        pairs = []
-        i = 0
-        while i < len(msgs):
-            role, text = msgs[i]
-            if role == "user":
-                # Find next assistant response
-                asst_text = ""
-                if i + 1 < len(msgs) and msgs[i+1][0] == "assistant":
-                    asst_text = msgs[i+1][1]
-                    i += 2
-                else:
-                    i += 1
-                pairs.append((text, asst_text))
-            else:
-                i += 1
-
-        # Show selected exchanges by stage
-        stage_labels = [
-            "Stage 1 — Dataset Discovery & Project Scoping",
-            "Stage 2 — Architecture Design",
-            "Stage 3 — Algorithm Co-design: NDS & Difficulty Estimator",
-            "Stage 4 — MCP Integration",
-            "Stage 5 — Debugging: Version Conflicts",
-            "Stage 6 — Testing Infrastructure",
-            "Stage 7 — Deployment & Documentation",
-        ]
-
-        # Select evenly spaced exchanges across the conversation
-        n = len(pairs)
-        step = max(1, n // len(stage_labels))
-        selected = []
-        for k in range(len(stage_labels)):
-            idx = min(k * step, n - 1)
-            selected.append((stage_labels[k], pairs[idx]))
-
-        for label, (user_text, asst_text) in selected:
-            S.append(Paragraph(label, H2))
-            S.append(rule())
-            S.append(bubble("user", user_text))
-            S.append(sp(1))
-            if asst_text:
-                S.append(bubble("assistant", asst_text))
-            S.append(sp(3))
-    else:
-        # Fallback: show hardcoded representative excerpts
+    # Always use curated excerpts from both Gemini 3.1 Pro and Cursor/Claude sessions
+    if True:
+        # Fallback: hardcoded excerpts from both Cursor (Claude) and Gemini 3.1 Pro sessions
         fallback = [
             ("Stage 1 — Dataset Discovery & Project Scoping",
-             "请详细阅读这个课程任务，我选择的主题是A nutrition and recipe analytics API backed by "
-             "open food datasets. 请详细分析这个选题，找到丰富的合适的数据集，并探讨如何实现以及创新点。",
-             "For the USDA SR Legacy dataset I recommend extracting: fdc_id, description, "
-             "food_category_id, and from food_nutrient: nutrient_id, amount. We can design "
-             "a four-layer architecture: models → schemas → routers → services. Three "
-             "innovation points: (1) Nutrient Density Score graded A-E, (2) multi-factor "
-             "difficulty estimator, (3) FDA allergen engine with ingredient-level breakdown."),
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] I am working on Coursework 1 for my Web Services module (XJCO3011). "
+             "I plan to build a 'Nutrition & Recipe Analytics API'. I need to use large, public "
+             "datasets. Could you recommend highly reliable, open-source datasets for (a) raw "
+             "ingredient nutritional data, and (b) a large collection of user recipes? Please also "
+             "suggest how I might conceptually link a natural language recipe ingredient "
+             "(e.g., '2 cups of flour') to a structured nutritional database.",
+             "[Gemini 3.1 Pro] For raw nutritional data, the USDA FoodData Central (FDC) is the "
+             "gold standard — over 300,000 food records. Focus on the SR Legacy subset. For "
+             "recipes, the Food.com Dataset (Kaggle, ~500,000 recipes) is ideal if you need user "
+             "ratings and a recommendation engine. Linking natural language to structured data "
+             "requires an NLP pipeline: (1) NER to extract quantity/unit/ingredient, (2) unit "
+             "normalisation to grams via a density table, (3) entity resolution using cosine "
+             "similarity on Sentence-BERT embeddings against USDA descriptions."),
+
             ("Stage 2 — Architecture Design",
-             "请开始继续完成",
-             "I'll implement the four-layer FastAPI architecture. models/ will contain "
-             "SQLAlchemy 2.0 ORM definitions with Mapped[T] syntax. schemas/ will use "
-             "Pydantic v2 with model_config = {'from_attributes': True}. The routers/ "
-             "layer stays thin — all business logic goes into services/."),
-            ("Stage 3 — Algorithm Co-design: NDS",
-             "继续",
-             "The Nutrient Density Score formula: NDS = mean(protein_score, fiber_score, "
-             "vitaminC_score, calcium_score, iron_score), where each component = "
-             "min(actual_per_100kcal / DRI_per_100kcal × 100, 100). Grade A = 70-100, "
-             "B = 50-69, C = 30-49, D = 15-29, E = 0-14. Spinach scores A; sugar scores E."),
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] Based on our discussion, I will use the USDA SR Legacy dataset and "
+             "the Food.com recipe dataset. I have decided to use FastAPI and SQLite for the backend. "
+             "Can you help me design the SQLAlchemy database schema? I need: 1. An Ingredient table "
+             "for the USDA data. 2. A Recipe table. 3. A many-to-many associative table "
+             "(RecipeIngredientLink) to handle the quantities and units.",
+             "[Gemini 3.1 Pro] Because your associative table stores extra data (quantity, unit, "
+             "raw_text), use the Association Object Pattern — a fully mapped class rather than a "
+             "plain Table object. Using modern SQLAlchemy 2.0 Mapped[T] syntax: RecipeIngredientLink "
+             "holds raw_text (original string), quantity (float), unit (str), and "
+             "normalized_weight_g (pre-computed grams). Key design note: storing normalized_weight_g "
+             "in the DB avoids on-the-fly computation — the calories query becomes a simple "
+             "SUM((ingredient.calories / 100) * link.normalized_weight_g)."),
+
+            ("Stage 3 — Algorithm Co-design: NDS & Difficulty Estimator",
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] I want to implement a proprietary 'Nutrient Density Score' (NDS) "
+             "to make my API stand out. Instead of calculating nutrition per 100g, I want to score "
+             "foods from A to E based on their nutritional value per 100 kcal, relative to the FDA "
+             "Dietary Reference Intake (DRI) for protein, fiber, vitamin C, calcium, and iron. "
+             "Could you help me write a Python service function?",
+             "[Gemini 3.1 Pro] The mathematical model: (1) Scale nutrients to 100 kcal: "
+             "N_adj = N_i * (100 / calories). (2) Cap each nutrient's DV at 100% to prevent "
+             "single-nutrient skew: DV_i = min(100, N_adj / DRI_i * 100). (3) Average the capped "
+             "percentages: NDS = (1/n) * sum(DV_i). Zero-calorie guard: if calories <= 0, return "
+             "score=0, grade=E. Example: Spinach (23 kcal/100g) delivers massive nutrients per "
+             "calorie — yields Grade A. Pure sugar yields Grade E."),
+
             ("Stage 4 — MCP Integration",
-             "MCP 兼容高级特性，外部平台部署，技术报告，API 文档 PDF 文件请依次帮我完成这几个任务",
-             "For MCP I'll use fastmcp>=3.0.0. The server will expose 10 tools: "
-             "search_ingredients, get_ingredient_nutrition, search_recipes, "
-             "get_recipe_allergens, get_recipe_nutrition, get_recipe_difficulty, "
-             "check_allergens, get_analytics_summary, find_recipes_by_ingredients, "
-             "compare_ingredients. Each tool wraps a service function directly."),
-            ("Stage 5 — Debugging Version Conflict",
-             "继续完成",
-             "Root cause: fastmcp 2.x depends on starlette>=1.0.0, but fastapi 0.115.12 "
-             "requires starlette<0.47.0. Fix: upgrade to fastapi>=0.116.0 and "
-             "fastmcp>=3.0.0 — these are mutually compatible with starlette>=0.46.0. "
-             "Pinned bcrypt==4.0.1 because bcrypt 4.1+ removed __about__ that passlib 1.7.4 uses."),
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] The coursework brief encourages cutting-edge technologies. I want "
+             "to expose my API endpoints as a Model Context Protocol (MCP) server, so AI assistants "
+             "can natively query my database. How can I wrap my existing FastAPI get_recipes logic "
+             "into an MCP tool using Python?",
+             "[Gemini 3.1 Pro] Use FastMCP — a high-level wrapper that feels as intuitive as "
+             "FastAPI. Create a parallel entry point mcp_server.py alongside your FastAPI app: "
+             "both query the same SQLAlchemy database. Decorate functions with @mcp.tool(). "
+             "Crucially, the docstring IS the tool description the LLM sees — write it carefully. "
+             "Run with mcp.run(transport='stdio') so the AI host process pipes data directly. "
+             "This creates two interfaces: FastAPI for HTTP clients, MCP for AI clients."),
+
+            ("Stage 5 — Debugging: Version Conflicts",
+             # Tool: Cursor / Claude (actual debugging session)
+             "[Cursor / Claude] After installing fastmcp, the server fails to start with: "
+             "TypeError: Router.__init__() got an unexpected keyword argument 'on_startup'. "
+             "The starlette version conflict is breaking FastAPI routing.",
+             "[Cursor / Claude] Root cause: fastmcp 2.x pins starlette>=1.0.0, but "
+             "fastapi 0.115.x requires starlette<0.47.0. Fix: upgrade both to compatible "
+             "versions — fastapi>=0.116.0 and fastmcp>=3.0.0 share starlette>=0.46.0. "
+             "Separately, bcrypt 4.1+ removed the __about__ attribute that passlib 1.7.4 "
+             "inspects at import time — fix by pinning bcrypt==4.0.1 in requirements.txt."),
+
             ("Stage 6 — Testing Infrastructure",
-             "请检查是否完全符合任务要求，并对照每一个得分点进行详细的检查",
-             "The pytest conftest.py uses SQLAlchemy StaticPool so all test functions "
-             "share one in-memory connection — tables created in setup_db() remain "
-             "visible throughout the session. Changed seed fixtures to scope='session' "
-             "with get-or-create logic to prevent UNIQUE constraint failures. All 56 tests pass."),
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] I am writing unit tests using pytest and httpx.AsyncClient. "
+             "However, I have a 450MB production database (nutrition.db) and I absolutely do NOT "
+             "want my tests to write dummy data into it. How can I configure a conftest.py fixture "
+             "to spin up a temporary, isolated in-memory SQLite database specifically for the "
+             "test session?",
+             "[Gemini 3.1 Pro] Use FastAPI Dependency Overrides to swap get_db for a testing "
+             "session pointing at sqlite:///:memory:. Critical: add poolclass=StaticPool to the "
+             "engine. Without it, SQLAlchemy's default pool may open a second connection thread — "
+             "because in-memory databases exist only within a single connection, a second "
+             "connection sees 'no such table'. StaticPool forces all test operations through one "
+             "connection, preventing random OperationalError crashes."),
+
             ("Stage 7 — Deployment & Documentation",
-             "仓库已经建立好，请先完成提交数据集相关内容",
-             "I've created the full commit history: (1) dataset docs, (2) DB models, "
-             "(3) JWT auth, (4) demo database, (5) API routers, (6) business logic, "
-             "(7) test suite, (8) MCP server, (9) deployment configs + README + PDFs. "
-             "The nutrition_demo.db (11.6 MB) is committed so the project runs immediately "
-             "after clone with no data download required."),
+             # Tool: Gemini 3.1 Pro
+             "[Gemini 3.1 Pro] What is the best platform to host a FastAPI app with a static "
+             "SQLite database for free (e.g., PythonAnywhere or Railway)? And how can I export "
+             "the auto-generated Swagger UI (/docs) from FastAPI into a static PDF file to "
+             "submit for my university coursework?",
+             "[Gemini 3.1 Pro] For FastAPI + static SQLite, Render is recommended — Railway "
+             "removed its free tier. PythonAnywhere is WSGI-native and frustrating with ASGI. "
+             "Since nutrition.db is static, commit it to GitHub; Render's ephemeral filesystem "
+             "is not a problem. Start command: uvicorn main:app --host 0.0.0.0 --port 10000. "
+             "For documentation export: navigate to /redoc (not /docs — it prints more cleanly), "
+             "Cmd+P, Save as PDF with Background graphics enabled. Alternatively, download "
+             "/openapi.json and use openapi2latex for LaTeX-formatted endpoint documentation."),
         ]
 
         for label, user_text, asst_text in fallback:
@@ -349,9 +357,10 @@ def build_story(msgs):
     # ── Footer note ───────────────────────────────────────────────────────────
     S.append(sp(2))
     S.append(Paragraph(
-        "<b>Note:</b> The full unedited conversation log (286 KB JSONL) is available on "
-        "request. Session ID: 38778eed-e850-434d-b8f6-e013ee468440. Tool: Cursor IDE with "
-        "Claude claude-4.6-sonnet-medium-thinking model.",
+        "<b>Note:</b> Two AI tools were used. (1) Cursor IDE with Claude claude-4.6-sonnet — "
+        "full session log available (JSONL), Session ID: 38778eed-e850-434d-b8f6-e013ee468440. "
+        "(2) Google Gemini 3.1 Pro (web interface) — excerpts reproduced above from Stages 1–4 "
+        "and Stage 7. All AI usage declared per XJCO3011 GREEN Light Assessment policy.",
         ParagraphStyle("Note", fontName="Helvetica-Oblique", fontSize=8.5,
                        textColor=colors.gray, leading=12)
     ))
